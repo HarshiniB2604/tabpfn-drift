@@ -26,7 +26,15 @@ METHOD_NAMES = [
     "P0_vanilla", "P1_window", "P2_recency", "P3_drift", "P4_valguided",
     "XGBoost", "MLP", "AdaptiveForest",
 ]
-
+# Names used by Member 1's first results batch -> canonical contract names
+ALIASES = {
+    "vanilla": "P0_vanilla",
+    "sliding_window": "P1_window",
+    "recency": "P2_recency",
+    "adwin": "P3_drift",
+    "validation": "P4_valguided",
+    "knn": "kNN_context",
+}
 
 class Method(ABC):
     """Every model, baseline and TabPFN policy implements this."""

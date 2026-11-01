@@ -8,8 +8,11 @@ from eval.metrics import load_results, summary_table
 from data.streams import drift_blocks_for
 from common.contract import STREAM_KINDS, METHOD_NAMES
 
-SOURCES = {"MOCK (fake data)": "results/mock", "REAL results": "results"}
-
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+SOURCES = {
+    "MOCK (fake data)": str(ROOT / "results" / "mock"),
+    "REAL results": str(ROOT / "results"),
+}
 
 def _load(source):
     try:

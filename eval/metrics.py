@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from common.contract import VANILLA_NAME, N_BLOCKS
 from data.streams import drift_blocks_for, GRADUAL_END
+from common.contract import VANILLA_NAME, N_BLOCKS, ALIASES
 
 PRE_WINDOW = 5
 TOL = 0.10
@@ -20,7 +21,9 @@ def load_results(results_dir="results"):
     files = sorted(Path(results_dir).glob("*.csv"))
     if not files:
         raise FileNotFoundError(f"no CSVs in {results_dir}")
-    return pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    df["method"] = df["method"].replace(ALIASES)
+    return df
 
 
 def recovery_time(rmse_by_block, change_start, search_start, horizon_end):
