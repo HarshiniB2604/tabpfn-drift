@@ -1,0 +1,7 @@
+method,rmse_gradual,rmse_none,rmse_recurring,rmse_sudden,recovery_gradual,recovery_recurring,recovery_sudden,flags_gradual,flags_none,flags_recurring,flags_sudden,no_drift_regret,n_seeds
+adwin,2.129,1.031,1.354,1.132,20.0,1.889,2.0,2.0,0.0,3.0,1.0,0.0,3
+knn,3.282,1.035,3.402,3.044,20.0,15.0,30.0,0.0,0.0,0.0,0.0,0.003,3
+recency,2.146,1.029,2.94,1.803,14.0,15.0,20.333,0.0,0.0,0.0,0.0,-0.002,3
+sliding_window,1.794,1.043,1.895,1.329,1.667,5.111,5.333,0.0,0.0,0.0,0.0,0.011,3
+validation,1.787,1.03,1.835,1.334,1.0,3.667,3.0,0.0,0.0,0.0,0.0,-0.001,3
+vanilla,3.303,1.031,3.394,3.071,20.0,15.0,30.0,0.0,0.0,0.0,0.0,,3
