@@ -5,7 +5,7 @@ Concept A: Friedman-1 on f0..f4.  Concept B: same function on f5..f9.
 """
 import numpy as np
 import pandas as pd
-from common.contract import N_FEATURES, N_BLOCKS, BLOCK_SIZE, FEATURE_COLS, STREAM_KINDS
+from common.contract import N_FEATURES, N_BLOCKS, BLOCK_SIZE, FEATURE_COLS, STREAM_KINDS, REAL_DATASETS
 
 NOISE_SD = 1.0
 PERM_B = [5, 6, 7, 8, 9, 0, 1, 2, 3, 4]
@@ -33,6 +33,8 @@ def _prob_new_concept(kind, b, n_blocks):
 
 
 def drift_blocks_for(kind, n_blocks=N_BLOCKS):
+    if kind in REAL_DATASETS:   # real data: true drift points are unknown
+        return []
     if kind == "none":
         return []
     if kind == "sudden":

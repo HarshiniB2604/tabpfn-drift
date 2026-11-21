@@ -24,3 +24,5 @@ results/*.tmp
 .DS_Store
 Thumbs.db
 .vscode/
+# Raw real-world datasets (downloaded by hand, not committed)
+data/raw/

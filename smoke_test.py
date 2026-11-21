@@ -88,4 +88,24 @@ assert set(tab.method) == {"P0_vanilla", "P1_window", "P2_recency", "P3_drift", 
 ok("load_results maps names via ALIASES; summary_table works")
 print(tab.round(2).to_string(index=False))
 
+print("7. real-data loaders (skipped if data/raw/ is missing)")
+from data.real import LOADERS, load_real, RAW
+if not any(RAW.glob("*.csv")):
+    print("  SKIP  no files in data/raw/")
+else:
+    for name in LOADERS:
+        s = load_real(name)
+        d = s.df
+        assert d["time"].is_monotonic_increasing, f"{name} not in time order"
+        assert d[s.feature_cols + ["y"]].notna().all().all(), f"{name} has missing values"
+        assert (d.groupby("block").size() == BLOCK_SIZE).all() and d.block.nunique() >= 30
+        assert "y" not in s.feature_cols and "time" not in s.feature_cols
+        ok(f"{name}: {d.block.nunique()} blocks x {BLOCK_SIZE} rows, {len(s.feature_cols)} features, time-ordered, no NaN")
+    s = load_real("bike")
+    small = s.df[s.df.block < 4]
+    path = run_prequential(make_policy("vanilla", StandInModel(seed=0), seed=0), small, "bike", 0,
+                           out_dir=out, feature_cols=s.feature_cols)
+    assert list(pd.read_csv(path).columns) == RESULT_COLUMNS
+    ok("runner works with real feature columns, same CSV schema")
+
 print("\nALL SMOKE TESTS PASSED  (stand-in model, NOT TabPFN)")

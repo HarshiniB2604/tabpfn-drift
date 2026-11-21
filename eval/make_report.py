@@ -77,7 +77,7 @@ def summary(seeds):
             n_seeds=g.seed.nunique(),
             rmse_mean=rmse, rmse_ci95=rmse_ci,
             recovery_mean=rec, recovery_ci95=rec_ci,
-            recovered_events=f"{int(g.recovered.sum())}/{int(g.n_drifts.sum())}" if stream != "none" else "",
+            recovered_events=f"{int(g.recovered.sum())}/{int(g.n_drifts.sum())}" if g.n_drifts.sum() > 0 else "",
             regret_pct_mean=reg, regret_pct_ci95=reg_ci,
             drift_flags_mean=g.drift_flags.mean(),
         ))

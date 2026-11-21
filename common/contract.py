@@ -9,6 +9,7 @@ N_FEATURES = 10
 N_BLOCKS = 60
 BLOCK_SIZE = 200
 STREAM_KINDS = ("sudden", "gradual", "recurring", "none")
+REAL_DATASETS = ("bike", "pm25", "energy")   # data/real.py; no known drift point
 FEATURE_COLS = [f"f{i}" for i in range(N_FEATURES)]
 
 C_MAX = 2000   # context cap shared by all TabPFN policies
@@ -37,7 +38,9 @@ ALIASES = {
 }
 
 class Method(ABC):
-    """Every model, baseline and TabPFN policy implements this."""
+    """Every model, baseline and TabPFN policy implements this.
+    X_block is a (rows, features) array; the number of features depends on the stream
+    (10 for synthetic, 11-26 for real datasets), so methods must not assume a count."""
     name: str = "unnamed"
 
     @abstractmethod

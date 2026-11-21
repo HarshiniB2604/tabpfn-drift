@@ -20,7 +20,10 @@ def _scores(y, pred):
     )
 
 
-def run_prequential(method, df, stream, seed, out_dir="results", overwrite=False):
+def run_prequential(method, df, stream, seed, out_dir="results", overwrite=False,
+                    feature_cols=FEATURE_COLS):
+    """feature_cols: model input columns. Default = synthetic f0..f9;
+    real datasets pass their own list (data/real.py)."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{stream}_{seed}_{method.name}.csv"
@@ -29,7 +32,7 @@ def run_prequential(method, df, stream, seed, out_dir="results", overwrite=False
 
     rows = []
     for b, blk in df.groupby("block", sort=True):
-        X = blk[FEATURE_COLS].to_numpy()
+        X = blk[feature_cols].to_numpy()
         y = blk["y"].to_numpy()
         if b > 0:
             pred = np.asarray(method.predict(X)).ravel()
