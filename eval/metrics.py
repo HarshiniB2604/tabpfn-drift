@@ -9,9 +9,8 @@ no_drift_regret: (method RMSE - vanilla RMSE) / vanilla RMSE on the 'none' strea
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from common.contract import VANILLA_NAME, N_BLOCKS
 from data.streams import drift_blocks_for, GRADUAL_END
-from common.contract import VANILLA_NAME, N_BLOCKS, ALIASES
+from common.contract import VANILLA_NAME, N_BLOCKS, ALIASES, RESULT_COLUMNS
 
 PRE_WINDOW = 5
 TOL = 0.10
@@ -19,9 +18,11 @@ TOL = 0.10
 
 def load_results(results_dir="results"):
     files = sorted(Path(results_dir).glob("*.csv"))
-    if not files:
-        raise FileNotFoundError(f"no CSVs in {results_dir}")
-    df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    # Only per-block run files; skips e.g. summary.csv that lives in the same folder.
+    frames = [d for d in (pd.read_csv(f) for f in files) if list(d.columns) == RESULT_COLUMNS]
+    if not frames:
+        raise FileNotFoundError(f"no result CSVs in {results_dir}")
+    df = pd.concat(frames, ignore_index=True)
     df["method"] = df["method"].replace(ALIASES)
     return df
 
