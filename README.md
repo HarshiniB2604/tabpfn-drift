@@ -81,7 +81,3 @@ The older Gradio app (`python app/app.py`) is kept as a backup.
 
 TabPFN is developed by Prior Labs. Its model weights are released under a non-commercial licence; this project
 uses them for non-commercial academic work only. Check the current TabPFN licence before any other use.
-
-### AI assistance
-
-Claude and Claude Code were used to build the code, the site and parts of the analysis; the author checked the results.
