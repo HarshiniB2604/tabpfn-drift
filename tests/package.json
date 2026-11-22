@@ -1,0 +1,10 @@
+{
+  "name": "tabpfn-drift-site-check",
+  "private": true,
+  "description": "Browser quality gate for site/index.html (see site_check.js). Uses the Chrome/Edge already installed.",
+  "scripts": { "check": "node site_check.js" },
+  "dependencies": {
+    "axe-core": "4.10.2",
+    "playwright-core": "1.49.1"
+  }
+}

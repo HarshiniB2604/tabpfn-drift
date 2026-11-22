@@ -29,3 +29,7 @@ data/raw/
 
 # Colab downloads (copied into results/)
 results_real_colab/
+
+# Node packages for the site check (installed with: cd tests && npm install)
+tests/node_modules/
+tests/package-lock.json
