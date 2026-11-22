@@ -56,7 +56,7 @@
     var ill = illustrationWeights(key);
     var cell = 18, gap = 4, newGap = 12, W = N_PAST * (cell + gap) + newGap + cell + 2, H = 46;
     var root = F.svg("svg", { class: "strip", viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": ariaText });
-    var blue = F.cssVar("--accent-tabpfn"), line = F.cssVar("--line-strong"), ink2 = F.cssVar("--ink-2");
+    var blue = F.cssVar("--accent-tabpfn"), line = F.cssVar("--mark-muted")   /* empty cells: >= 3:1 */, ink2 = F.cssVar("--ink-2");
     var top = 14;
     ill.w.forEach(function (v, i) {
       var x = 1 + i * (cell + gap);

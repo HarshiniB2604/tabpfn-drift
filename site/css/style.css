@@ -13,6 +13,10 @@
   --accent-tabpfn: #2B6FD6;
   --accent-baseline: #E8683A;
   --link: #1F5DB8;
+  --mark-muted: #8C877E;   /* outlines of marks that must stay visible: 3.6:1 on --surface */
+  --btn-bg: #1F5DB8;       /* white text 6.3:1 */
+  --btn-bg-hover: #184F9C;
+  --btn-ink: #FFFFFF;
   --band: rgba(43, 111, 214, 0.14);
   --focus: #1F5DB8;
   --serif: Georgia, "Iowan Old Style", "Times New Roman", serif;
@@ -37,6 +41,10 @@
   --accent-tabpfn: #5B95EA;
   --accent-baseline: #F0814F;
   --link: #7FAEF0;
+  --mark-muted: #75747F;   /* 3.6:1 on the dark --surface */
+  --btn-bg: #7FAEF0;       /* 7.9:1 against the dark page; dark text on it 8.3:1 */
+  --btn-bg-hover: #9DC1F4;
+  --btn-ink: #101014;
   --band: rgba(91, 149, 234, 0.2);
   --focus: #7FAEF0;
   color-scheme: dark;
@@ -129,8 +137,8 @@ section:last-of-type { padding-bottom: var(--section-gap); }
   font: 600 1rem/1 var(--sans); text-decoration: none; border: 1px solid transparent;
   transition: transform var(--t), background var(--t);
 }
-.btn-primary { background: #1F5DB8; color: #fff; }
-.btn-primary:hover { background: #184f9c; }
+.btn-primary { background: var(--btn-bg); color: var(--btn-ink); }
+.btn-primary:hover { background: var(--btn-bg-hover); }
 .btn-ghost { background: var(--surface); color: var(--ink); border-color: var(--line-strong); }
 .btn-ghost:hover { border-color: var(--ink-2); }
 .btn:active { transform: translateY(1px); }
