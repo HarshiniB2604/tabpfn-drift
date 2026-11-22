@@ -1,5 +1,11 @@
 stream,method,kind,n_seeds,rmse_mean,rmse_ci95,recovery_mean,recovery_ci95,recovered_events,regret_pct_mean,regret_pct_ci95,drift_flags_mean
+bike,P1_window,TabPFN policy,1,50.222609625683276,,,,,,,0.0
+bike,P4_valguided,TabPFN policy,1,51.215997223732025,,,,,,,0.0
+bike,P2_recency,TabPFN policy,1,53.77612895771408,,,,,,,0.0
 bike,XGBoost,baseline,3,54.97361900852959,0.0,,,,,,0.0
+bike,P0_vanilla,TabPFN policy,1,69.8064008752424,,,,,,,0.0
+bike,kNN_context,TabPFN policy,1,72.74065979907887,,,,,,,0.0
+bike,P3_drift,TabPFN policy,1,78.2167857368697,,,,,,,38.0
 bike,AdaptiveForest,baseline,3,100.52642687118073,3.756118366940718,,,,,,0.0
 bike,MLP,baseline,3,126.79377514710522,5.896787243164604,,,,,,0.0
 energy,AdaptiveForest,baseline,3,94.60150099576283,1.7960856212547802,,,,,,0.0

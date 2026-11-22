@@ -34,8 +34,7 @@ LABEL = {"P0_vanilla": "P0 vanilla", "P1_window": "P1 sliding window",
          "kNN_context": "kNN context", "XGBoost": "XGBoost", "MLP": "MLP",
          "AdaptiveForest": "Adaptive forest"}
 NOTE = "Synthetic Friedman-1 streams, {n} seeds. Error bars: 95% CI across seeds (rough with few seeds)."
-REAL_NOTE = ("Real dataset, {n} seeds (same data; the seed changes model randomness). "
-             "Error bars: 95% CI across seeds. No known drift point.")
+REAL_NOTE = "Real data, {n}. Error bars: 95% CI across seeds. No known drift point."
 REAL = {"bike": ("Bike Sharing", "bikes per hour"),
         "pm25": ("Beijing PM2.5", "PM2.5 in ug/m3"),
         "energy": ("Appliances Energy", "Wh per 10 min")}
@@ -109,12 +108,17 @@ def real_rmse_chart(s, stream, out):
     d = s[s.stream == stream]
     name, units = REAL[stream]
     fig, ax = plt.subplots(figsize=(8, 4.8))
-    hbars(ax, d, "rmse_mean", "rmse_ci95")
+    dd, y = hbars(ax, d, "rmse_mean", "rmse_ci95")
+    for yi, (m, row) in zip(y, dd.iterrows()):      # one seed -> no CI possible: say so on the bar
+        if row.n_seeds < 2:
+            ax.text(row.rmse_mean, yi, "  1 seed, no CI", va="center", fontsize=8.5, color=INK2)
     base_axes(ax, f"mean block RMSE, {units} (lower is better)")
-    ax.set_xlim(0, None)
+    ax.set_xlim(0, d.rmse_mean.max() * 1.25)
     legend(fig)
     missing = "" if (d.kind == "TabPFN policy").any() else ", baselines only so far"
-    finish(fig, f"Mean RMSE - {name} (real data){missing}", int(d.n_seeds.max()),
+    seeds = ", ".join(f"{k}s: {int(g.n_seeds.min())} seed{'s' if g.n_seeds.min() > 1 else ''}"
+                      for k, g in d.groupby("kind"))           # e.g. "TabPFN policys: 1 seed"
+    finish(fig, f"Mean RMSE - {name} (real data){missing}", seeds.replace("policys", "policies"),
            out / f"rmse_{stream}.png", note=REAL_NOTE)
 
 
