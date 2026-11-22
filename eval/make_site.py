@@ -31,16 +31,16 @@ from eval import findings as F
 ROLL = 5   # real data: RMSE over the last 5 blocks, same as the app
 
 # Display metadata (names and units; no results). Order = order on the page.
-METHODS = [  # key, label, kind, dash (SVG stroke-dasharray; colour comes from kind)
-    ("P0_vanilla", "Vanilla", "tabpfn", ""),
-    ("P1_window", "Sliding window", "tabpfn", "8 4"),
-    ("P2_recency", "Recency", "tabpfn", "2 3"),
-    ("P3_drift", "ADWIN", "tabpfn", "12 3 2 3"),
-    ("P4_valguided", "Validation", "tabpfn", "5 2 1 2"),
-    ("kNN_context", "kNN", "tabpfn", "1 2"),
-    ("XGBoost", "XGBoost", "baseline", ""),
-    ("MLP", "MLP", "baseline", "8 4"),
-    ("AdaptiveForest", "Adaptive forest", "baseline", "2 3"),
+METHODS = [  # key, label, short label (narrow screens), kind, dash (SVG stroke-dasharray; colour comes from kind)
+    ("P0_vanilla", "Vanilla", "Vanilla", "tabpfn", ""),
+    ("P1_window", "Sliding window", "Window", "tabpfn", "8 4"),
+    ("P2_recency", "Recency", "Recency", "tabpfn", "2 3"),
+    ("P3_drift", "ADWIN", "ADWIN", "tabpfn", "12 3 2 3"),
+    ("P4_valguided", "Validation", "Valid.", "tabpfn", "5 2 1 2"),
+    ("kNN_context", "kNN", "kNN", "tabpfn", "1 2"),
+    ("XGBoost", "XGBoost", "XGB", "baseline", ""),
+    ("MLP", "MLP", "MLP", "baseline", "8 4"),
+    ("AdaptiveForest", "Adaptive forest", "ARF", "baseline", "2 3"),
 ]
 DATASETS = [  # key, label, kind, unit
     ("sudden", "Sudden drift", "synthetic", ""),
@@ -157,6 +157,62 @@ def problem_data(curves, summ):
                 old_rule_share_pct=[100 * drift / b if b >= drift else 100.0 for b in c["blocks"]])
 
 
+def limitations(summ, seeds, problem, ab, blocks):
+    """The Limitations list, every number taken from the data or the code (same points as the app)."""
+    from methods.policies import ValidationPolicy
+    ps, bs = policy_settings(), baseline_settings()
+    out = []
+    syn = summ[summ.stream.isin(["sudden", "gradual", "recurring", "none"])]
+    out.append(dict(title=f"Few seeds on synthetic data",
+                    text=f"Every synthetic result is the mean of {int(syn.n_seeds.max())} seeds (seeds {', '.join(map(str, seeds))}). "
+                         "The 95% intervals are wide and rough, small differences are within noise, and we make no "
+                         "confidence claims from so few seeds."))
+    parts = []
+    for ds in F.REAL_SETS:
+        g = summ[(summ.stream == ds) & summ.method.isin(F.TABPFN)]
+        if g.empty:
+            parts.append(f"{ds}: no TabPFN results yet")
+            continue
+        most = int(g.n_seeds.mode().iloc[0])
+        odd = [f"{dict((k, l) for k, l, *_ in METHODS)[r.method]} {int(r.n_seeds)} seed{'s' if r.n_seeds > 1 else ''}"
+               for r in g.itertuples() if r.n_seeds != most]
+        parts.append(f"{ds}: {most} seed{'s' if most > 1 else ''} per policy" + (f" ({', '.join(odd)})" if odd else ""))
+    zero = sorted({r.method for r in summ[summ.stream.isin(F.REAL_SETS)].itertuples()
+                   if r.n_seeds > 1 and r.rmse_ci95 == 0})
+    out.append(dict(title="Few seeds for TabPFN on real data",
+                    text="TabPFN policies on real data: " + "; ".join(parts) + ". A method run once has no interval at all."
+                         + (f" {', '.join(zero)} gave exactly the same result on every seed, so an interval of 0 there means "
+                            "'deterministic', not 'precise'." if zero else "")))
+    out.append(dict(title="Untuned baselines with a short window",
+                    text=f"XGBoost and the MLP are retrained before every block on only the last {bs['refit_blocks']} blocks "
+                         f"({bs['refit_blocks'] * BLOCK_SIZE} rows); TabPFN policies may use up to {C_MAX} rows. The adaptive "
+                         "forest learns row by row. None of them was tuned: they are reference points, not the best possible "
+                         "versions of these models."))
+    adw = []
+    for ds in F.REAL_SETS:
+        r = F.get(summ, ds, F.ADW)
+        if r is not None:
+            adw.append(f"{ds} {r.drift_flags_mean:.0f} of {blocks[ds]} blocks")
+    worst = [ds for ds in F.REAL_SETS if not summ[(summ.stream == ds) & summ.method.isin(F.TABPFN)].empty
+             and summ[(summ.stream == ds) & summ.method.isin(F.TABPFN)].sort_values("rmse_mean").method.iloc[-1] == F.ADW]
+    out.append(dict(title="ADWIN over-triggers on real data",
+                    text=f"At its default setting ADWIN flagged drift in many blocks ({', '.join(adw)}; mean over seeds). Each "
+                         "flag throws away older history." + (f" It has the highest mean RMSE of the TabPFN policies on "
+                         f"{', '.join(worst)}." if worst else "") + " " + F.adwin_limitation(summ, ab)))
+    out.append(dict(title="Synthetic drift is not real drift",
+                    text=f"On the synthetic sudden stream we create a clean change: vanilla's error jumps to "
+                         f"{F.r2(problem['peak']) / F.r2(problem['pre_mean']):.1f}× its pre-drift level ({F.r2(problem['pre_mean']):.2f} "
+                         f"→ {F.r2(problem['peak']):.2f}). In the real data the true drift points are unknown, so we can only "
+                         "compare error over time, not recovery time. Results on synthetic streams do not prove anything "
+                         "about real data."))
+    out.append(dict(title="Policy settings were not tuned",
+                    text=f"Window {ps['P1_window']['window']} blocks, recency half-life {ps['P2_recency']['half_life']} blocks, "
+                         f"validation scored on the last {ps['P4_valguided']['n_val_blocks']} blocks with a "
+                         f"{ps['P4_valguided']['min_gain_pct']:.0f}% switching margin, ADWIN δ = {ps['P3_drift']['delta']} "
+                         "(see the ADWIN sensitivity check for other values)."))
+    return out
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--json", default="site_data/results.json")
@@ -203,7 +259,7 @@ def main():
         settings=dict(block_size=BLOCK_SIZE, c_max=C_MAX, n_blocks=N_BLOCKS, rolling_window=ROLL,
                       pre_window=PRE_WINDOW, tolerance_pct=TOL * 100, ci=rj["meta"]["ci"],
                       seeds=rj["meta"]["seeds"]),
-        methods=[dict(key=k, label=l, kind=kd, dash=d) for k, l, kd, d in METHODS],
+        methods=[dict(key=k, label=l, short=sh, kind=kd, dash=d) for k, l, sh, kd, d in METHODS],
         policy_settings=policy_settings(),
         baseline_settings=baseline_settings(),
         warmup_blocks=int(min(len(range(c["blocks"][0])) for by_m in curves_in.values() for c in by_m.values())),
@@ -211,6 +267,7 @@ def main():
         summary=summ.to_dict(orient="records"),
         curves=curves,
         problem=problem_data(curves_in, summ),
+        limitations=limitations(summ, rj["meta"]["seeds"], problem_data(curves_in, summ), ab, blocks),
         findings=F.all_findings(summ, blocks, ablation_done=sensitivity is not None),
         robustness=F.robustness(summ),
         ablation=ablation,

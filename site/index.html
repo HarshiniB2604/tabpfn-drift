@@ -131,6 +131,70 @@
         <ul class="baseline-grid" id="baseline-cards" aria-labelledby="baselines-title"></ul>
       </div>
     </section>
+
+    <!-- 5. RESULTS -->
+    <section id="results" data-nav="Results" aria-labelledby="results-title">
+      <div class="wrap">
+        <p class="eyebrow">Results</p>
+        <h2 id="results-title">What happened, stream by stream</h2>
+        <div class="switcher" id="ds-switch" role="radiogroup" aria-label="Dataset"></div>
+        <div class="ds-intro" id="results-intro" aria-live="polite"></div>
+
+        <div class="card chart-card results-chart-card">
+          <h3 id="results-chart-title"></h3>
+          <p class="meta" id="results-chart-note"></p>
+          <div class="chips" id="method-chips" role="group" aria-label="Methods shown in the chart"></div>
+          <label class="flag-toggle" id="flag-toggle-wrap"><input type="checkbox" id="flag-toggle" checked> Show ADWIN drift flags</label>
+          <div class="chart" id="results-chart"></div>
+          <details class="data-table" id="results-curve-details">
+            <summary>Show the chart's numbers as a table</summary>
+            <div class="table-scroll" id="results-curve-table"></div>
+          </details>
+        </div>
+
+        <div class="results-grid">
+          <div class="card pad">
+            <h3 id="results-table-title">Results table</h3>
+            <p class="meta" id="results-table-note"></p>
+            <p class="scroll-hint">Swipe the table sideways for more columns.</p>
+            <div class="table-scroll" id="results-table"></div>
+          </div>
+          <div class="card pad">
+            <h3 id="results-bars-title">Mean RMSE per method (lower is better)</h3>
+            <p class="meta" id="results-bars-note"></p>
+            <div class="bars" id="results-bars"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. WHAT WE FOUND -->
+    <section id="findings" data-nav="Findings" aria-labelledby="findings-title">
+      <div class="wrap">
+        <p class="eyebrow">What we found</p>
+        <h2 id="findings-title">Three findings, each with its caveat</h2>
+        <p class="meta" id="findings-note"></p>
+        <ol class="finding-list" id="finding-cards"></ol>
+
+        <div class="subhead"><h3 id="robust-title">Robustness on real data: how far is each policy from the best?</h3>
+          <p class="meta" id="robust-note"></p></div>
+        <div class="card pad"><div class="table-scroll" id="robust-table"></div></div>
+
+        <div id="sensitivity" hidden>
+          <div class="subhead"><h3 id="sens-title"></h3><p class="meta" id="sens-note"></p></div>
+          <div class="card pad sens-card" id="sens-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. LIMITATIONS -->
+    <section id="limitations" data-nav="Limitations" aria-labelledby="limits-title">
+      <div class="wrap">
+        <p class="eyebrow">Limitations</p>
+        <h2 id="limits-title">What these results can and cannot show</h2>
+        <ol class="limit-list" id="limit-list"></ol>
+      </div>
+    </section>
   </main>
 
   <noscript><p class="wrap">This page needs JavaScript to draw its charts. The numbers are in results/summary.csv.</p></noscript>
@@ -139,6 +203,7 @@
   <script src="js/format.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/idea.js"></script>
+  <script src="js/results.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

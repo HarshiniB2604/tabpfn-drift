@@ -200,6 +200,6 @@
     buildHow();
   }
 
-  window.SECTIONS = { buildIdea: buildIdea, buildHow: buildHow };
+  window.SECTIONS = { buildIdea: buildIdea, buildHow: buildHow, lineSample: lineSample };
   window.addEventListener("themechange", rebuild);
 })();
