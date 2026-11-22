@@ -26,3 +26,6 @@ Thumbs.db
 .vscode/
 # Raw real-world datasets (downloaded by hand, not committed)
 data/raw/
+
+# Colab downloads (copied into results/)
+results_real_colab/

@@ -8,7 +8,13 @@ bike,kNN_context,TabPFN policy,1,72.74065979907887,,,,,,,0.0
 bike,P3_drift,TabPFN policy,1,78.2167857368697,,,,,,,38.0
 bike,AdaptiveForest,baseline,3,100.52642687118073,3.756118366940718,,,,,,0.0
 bike,MLP,baseline,3,126.79377514710522,5.896787243164604,,,,,,0.0
+energy,P2_recency,TabPFN policy,1,87.10752911388344,,,,,,,0.0
+energy,P0_vanilla,TabPFN policy,1,87.29885385592662,,,,,,,0.0
+energy,P4_valguided,TabPFN policy,1,87.64659207733095,,,,,,,0.0
+energy,kNN_context,TabPFN policy,1,88.17605921931265,,,,,,,0.0
+energy,P1_window,TabPFN policy,1,92.10589764499842,,,,,,,0.0
 energy,AdaptiveForest,baseline,3,94.60150099576283,1.7960856212547802,,,,,,0.0
+energy,P3_drift,TabPFN policy,1,117.73011047345338,,,,,,,56.0
 energy,XGBoost,baseline,3,122.11002031313167,0.0,,,,,,0.0
 energy,MLP,baseline,3,142.36471968584974,12.503167067385649,,,,,,0.0
 gradual,P4_valguided,TabPFN policy,3,1.787378322859061,0.09296886364218195,1.0,2.4841377117503303,3/3,,,0.0
