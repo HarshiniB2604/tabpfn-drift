@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TabPFN under concept drift</title>
+  <meta name="description" content="When data changes, which past examples should an AI model look at? A comparison of context-selection policies for TabPFN under concept drift.">
+  <!-- Offline by design: no CDN, no web fonts, no analytics. Opens by double-click (file://). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'none'; font-src 'self'">
+  <link rel="icon" href="data:,">
+  <script src="js/theme.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="topnav">
+    <nav class="wrap" aria-label="Sections">
+      <a class="brand" href="#top">TabPFN under concept drift</a>
+      <ul class="navlinks" id="navlinks"></ul>
+      <button class="theme-toggle" id="theme-toggle" type="button">
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path>
+        </svg>
+        <span class="label">Switch to light</span>
+      </button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- 1. HERO -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Course project &middot; context selection for a pretrained model</p>
+          <h1 id="hero-title">When data changes, which past examples should an AI model look at?</h1>
+          <p class="lede" id="hero-lede"></p>
+          <div class="actions">
+            <a class="btn btn-primary" href="#problem">See the problem</a>
+            <a class="btn btn-ghost" href="#results" id="btn-results" hidden>Jump to results</a>
+          </div>
+          <ul class="badges" id="hero-badges" aria-label="Scope"></ul>
+        </div>
+        <div class="card headline" id="hero-headline" role="group" aria-label="Headline result" hidden></div>
+      </div>
+    </section>
+
+    <!-- 2. THE PROBLEM -->
+    <section id="problem" data-nav="Problem" aria-labelledby="problem-title">
+      <div class="wrap">
+        <p class="eyebrow">The problem</p>
+        <h2 id="problem-title">The rules can change while the model keeps looking at the past</h2>
+        <div class="problem-grid">
+          <div class="problem-left">
+            <dl class="card define">
+              <dt>Concept drift</dt>
+              <dd>The link between the inputs and the answer changes over time. The same inputs now lead to a
+                different answer, so examples from before the change start to teach the wrong rule.</dd>
+            </dl>
+            <figure class="illus" id="drift-illus"></figure>
+            <div class="card why">
+              <h3>Why plain TabPFN struggles</h3>
+              <p id="problem-why"></p>
+              <p id="problem-recovery"></p>
+            </div>
+          </div>
+
+          <div class="card chart-card">
+            <h3 id="problem-chart-title"></h3>
+            <p class="meta" id="problem-chart-meta"></p>
+            <div class="chart" id="problem-chart"></div>
+            <div class="scrubber">
+              <label for="problem-scrub" id="problem-scrub-label">Move through the stream, block by block</label>
+              <input type="range" id="problem-scrub" min="1" max="1" step="1" value="1"
+                     aria-describedby="problem-story">
+            </div>
+            <p class="story" id="problem-story" aria-live="polite"></p>
+            <details class="data-table">
+              <summary>Show the numbers as a table</summary>
+              <div class="table-scroll" id="problem-table"></div>
+            </details>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. THE IDEA -->
+    <section id="idea" data-nav="Idea" aria-labelledby="idea-title">
+      <div class="wrap">
+        <p class="eyebrow">The idea</p>
+        <h2 id="idea-title">Keep the model, change what it looks at</h2>
+        <p class="lede" id="idea-lede"></p>
+        <ol class="steps" id="idea-steps" aria-label="How TabPFN predicts, in three steps"></ol>
+
+        <div class="subhead">
+          <h3 id="policies-title">Context policies</h3>
+          <p class="meta"><span class="tag-illus">Illustration, not data</span> Each strip shows the past blocks
+            (oldest left) and which of them can enter the context for the next block. Darker = more likely.</p>
+        </div>
+        <ul class="policy-grid" id="policy-cards" aria-labelledby="policies-title"></ul>
+      </div>
+    </section>
+
+    <!-- 4. HOW WE TESTED -->
+    <section id="how" data-nav="How we tested" aria-labelledby="how-title">
+      <div class="wrap">
+        <p class="eyebrow">How we tested</p>
+        <h2 id="how-title">Test first, then learn: block by block</h2>
+        <div class="how-grid">
+          <div class="card pad" id="ttt"></div>
+          <div class="card pad" id="metrics"></div>
+        </div>
+
+        <div class="subhead"><h3 id="data-title">The data</h3></div>
+        <div class="data-grid">
+          <div>
+            <p class="group-label" id="syn-label"></p>
+            <ul class="data-list" id="data-synthetic" aria-labelledby="syn-label"></ul>
+          </div>
+          <div>
+            <p class="group-label" id="real-label"></p>
+            <ul class="data-list" id="data-real" aria-labelledby="real-label"></ul>
+          </div>
+        </div>
+
+        <div class="subhead"><h3 id="baselines-title">Baselines: models that are retrained instead</h3></div>
+        <ul class="baseline-grid" id="baseline-cards" aria-labelledby="baselines-title"></ul>
+      </div>
+    </section>
+  </main>
+
+  <noscript><p class="wrap">This page needs JavaScript to draw its charts. The numbers are in results/summary.csv.</p></noscript>
+
+  <script src="data.js"></script>
+  <script src="js/format.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/idea.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
