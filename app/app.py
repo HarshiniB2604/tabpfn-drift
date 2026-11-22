@@ -29,6 +29,7 @@ from common.contract import N_BLOCKS
 from data.streams import drift_blocks_for, GRADUAL_START, GRADUAL_END
 from eval.metrics import load_results
 from eval.make_report import per_seed_table, summary
+from eval import findings as FINDINGS
 
 RESULTS = ROOT / "results"
 FIGURES = RESULTS / "figures"
@@ -340,6 +341,36 @@ def adwin_rank_text():
     return txt + (f" It is not the worst on {', '.join(other)}." if other else "")
 
 
+ABLATION_CSV = ROOT / "results_ablation" / "ablation_summary.csv"
+
+
+def read_ablation():
+    """ADWIN delta ablation summary (made by python -m eval.make_ablation), or None if not run yet."""
+    return pd.read_csv(ABLATION_CSV) if ABLATION_CSV.exists() else None
+
+
+def adwin_limitation_text():
+    """What the data shows about ADWIN on gradual drift and on energy (eval/findings.py)."""
+    return FINDINGS.adwin_limitation(SUMMARY, read_ablation())
+
+
+def adwin_sensitivity_md():
+    """'ADWIN sensitivity' block: only from results_ablation/; empty string if there is none."""
+    a = FINDINGS.adwin_sensitivity(read_ablation(), SUMMARY)
+    if a is None:
+        return ""
+    rows = ["| Dataset | δ | Seeds | Mean RMSE | Drift flags per run | vs vanilla (same seeds) |",
+            "|---|---|---|---|---|---|"]
+    for r in a["table"]:
+        vs = (f"{r['vs_vanilla_pct']:+.1f}% (1 seed, no CI)" if r["seeds"] < 2 or r["vs_vanilla_ci95"] is None
+              else f"{r['vs_vanilla_pct']:+.1f}% +/- {r['vs_vanilla_ci95']:.1f}")
+        rows.append(f"| {r['dataset']} | {r['delta']} | {r['seeds']} | "
+                    f"{fmt(r['rmse'], r['rmse_ci95'], r['seeds'])} | {r['flags']:.1f} of {r['blocks']} blocks | {vs} |")
+    return "\n\n".join([f"## {a['title']}", "*REPLAY of saved results from `results_ablation/`.*", a["intro"],
+                        f"**{a['summary']}**", "\n".join("- " + p for p in a["points"]), "\n".join(rows),
+                        f"*{a['caveat']}*"])
+
+
 def limitations_md():
     return f"""
 ## Limitations: what these results can and cannot show
@@ -356,7 +387,7 @@ def limitations_md():
    possible versions of these models.
 4. **ADWIN over-triggers on real data.** ADWIN flagged drift in many blocks ({adwin_flags_text()}).
    Each flag throws away older history, so it ends up with little context. {adwin_rank_text()}
-   It is also weak on gradual synthetic drift (not yet explained).
+   {adwin_limitation_text()}
 5. **Synthetic drift is stronger than real drift.** In the synthetic streams the whole rule changes at
    once and the error jumps about 6x (vanilla ~1.0 -> ~6.5 at block 30). In the real data the changes are
    smaller and mixed with normal day/season patterns, and the true drift points are unknown, so we can only
@@ -499,7 +530,8 @@ def finding_adwin(s):
                           for k, r in syn)
     rmse = "; ".join(f"{ds} {fmt(a.rmse_mean, a.rmse_ci95, a.n_seeds)} vs {fmt(p.rmse_mean, p.rmse_ci95, p.n_seeds)} "
                      f"({pct(a.rmse_mean, p.rmse_mean):+.1f}%, {compare(a, p)})" for ds, a, p in real)
-    head = ("ADWIN (P3) over-triggers on real data." if over and worse
+    head = (("ADWIN (P3) over-triggers on real data at its default setting (see ADWIN sensitivity below)."
+             if read_ablation() is not None else "ADWIN (P3) over-triggers on real data.") if over and worse
             else "ADWIN (P3) on real data: no clear over-triggering in these results.")
     return (f"**3. {head}** It flagged drift {flags_real}, against {flags_syn} flags per run on the "
             f"synthetic streams. Each flag throws away older history. Its mean RMSE vs vanilla: {rmse}"
@@ -620,6 +652,8 @@ with gr.Blocks(title="TabPFN under concept drift") as demo:
 
     with gr.Tab("Results"):
         gr.Markdown(key_findings_md())
+        if read_ablation() is not None:          # shown only once the ablation has been run
+            gr.Markdown(adwin_sensitivity_md())
         r_choice = gr.Dropdown(list(RESULT_STREAMS), value="Sudden drift (synthetic)", label="Stream / dataset")
         r_text = gr.Markdown()
         r_table = gr.Dataframe(interactive=False, wrap=True)
