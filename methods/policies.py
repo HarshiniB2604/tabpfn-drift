@@ -238,5 +238,6 @@ POLICIES = {
 }
 
 
-def make_policy(name, model, c_max=C_MAX, seed=0):
-    return POLICIES[name](model, c_max=c_max, seed=seed)
+def make_policy(name, model, c_max=C_MAX, seed=0, **options):
+    """options are passed to the policy, e.g. make_policy("adwin", m, delta=1e-4)."""
+    return POLICIES[name](model, c_max=c_max, seed=seed, **options)
