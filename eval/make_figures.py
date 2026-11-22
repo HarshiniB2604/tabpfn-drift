@@ -116,8 +116,10 @@ def real_rmse_chart(s, stream, out):
     ax.set_xlim(0, d.rmse_mean.max() * 1.25)
     legend(fig)
     missing = "" if (d.kind == "TabPFN policy").any() else ", baselines only so far"
-    seeds = ", ".join(f"{k}s: {int(g.n_seeds.min())} seed{'s' if g.n_seeds.min() > 1 else ''}"
-                      for k, g in d.groupby("kind"))           # e.g. "TabPFN policys: 1 seed"
+    def count(g):   # "3 seeds", "1 seed", or "1-3 seeds" when methods differ
+        lo, hi = int(g.n_seeds.min()), int(g.n_seeds.max())
+        return f"{lo} seed" if hi == 1 else f"{hi} seeds" if lo == hi else f"{lo}-{hi} seeds"
+    seeds = ", ".join(f"{k}s: {count(g)}" for k, g in d.groupby("kind"))   # e.g. "TabPFN policys: 3 seeds"
     finish(fig, f"Mean RMSE - {name} (real data){missing}", seeds.replace("policys", "policies"),
            out / f"rmse_{stream}.png", note=REAL_NOTE)
 
