@@ -125,8 +125,8 @@ def finding_validation(s):
         id="validation", supported=got == tot and lo <= 0,
         headline=f"Validation-guided selection {rec} {cost_head}.",
         body=body, real=real_text,
-        caveat=("Low-drift cases are not shown by our data: real drift points are unknown, so we cannot "
-                "say which real dataset has little drift."),
+        caveat=("The true drift points in the real data are unknown, so we cannot tell whether a real dataset "
+                "has drift at all, or how much. The real-data comparison is not evidence about low-drift cases."),
         evidence=ev,
         values=dict(recovered=got, drifts=tot, regret=float(reg.regret_pct_mean), regret_ci=float(reg.regret_pct_ci95)),
     )
@@ -182,6 +182,53 @@ def robustness(s):
                         best=r.method == best.method)
                    for _, r in g.sort_values("rmse_mean").iterrows()]
     return out
+
+
+NAMES = {"P0_vanilla": "vanilla", "P1_window": "sliding window", "P2_recency": "recency", "P3_drift": "ADWIN",
+         "P4_valguided": "validation", "kNN_context": "kNN"}
+
+
+def robustness_takeaway(rob):
+    """One sentence from the robustness table: the largest gap to the best TabPFN policy across the real
+    datasets for validation, sliding window and ADWIN (gaps from the shown means, see robustness())."""
+    parts = []
+    for key in ("P4_valguided", "P1_window", "P3_drift"):
+        cells = [(ds, r) for ds, rows in rob.items() for r in rows if r["method"] == key]
+        if not cells:
+            continue
+        ds, r = max(cells, key=lambda c: c[1]["gap_pct"])
+        note = ", 1 seed" if r["n_seeds"] < 2 else ""
+        parts.append((NAMES[key], r["gap_pct"], ds, note))
+    if not parts:
+        return ""
+    (n0, g0, d0, s0), rest = parts[0], parts[1:]
+    text = (f"Across the {len(rob)} real datasets, {n0} is never more than {g0:.1f}% behind the best TabPFN policy "
+            f"(largest gap on {d0}{s0})")
+    if rest:
+        text += ", while " + " and ".join(f"{n} is up to {g:.1f}% behind ({d}{s})" for n, g, d, s in rest)
+    return text + "."
+
+
+def synthetic_winners(s):
+    """Which TabPFN policy has the lowest mean RMSE on each synthetic drift stream, with seeds and CI,
+    and whether its 95% CI separates it from the runner-up."""
+    out = []
+    for ds in DRIFT_STREAMS:
+        g = s[(s.stream == ds) & s.method.isin(TABPFN)].sort_values("rmse_mean")
+        if len(g) < 2:
+            continue
+        a, b = g.iloc[0], g.iloc[1]
+        verdict = compare(a, b)
+        clear = verdict.startswith("lower")
+        out.append(dict(stream=ds, method=a.method, n_seeds=int(a.n_seeds), clear=clear,
+                        text=f"{ds}: {NAMES[a.method]} {fmt(a.rmse_mean, a.rmse_ci95, a.n_seeds)} "
+                             f"(next: {NAMES[b.method]} {fmt(b.rmse_mean, b.rmse_ci95, b.n_seeds)}; "
+                             f"{'95% CIs do not overlap' if clear else 'CIs overlap, so no clear winner'})"))
+    if not out:
+        return None
+    n = sorted({w["n_seeds"] for w in out})
+    return dict(items=out, text="Lowest mean RMSE among the TabPFN policies on each synthetic drift stream "
+                f"({' or '.join(map(str, n))} seeds, mean ± 95% CI): " + "; ".join(w["text"] for w in out) + ".")
 
 
 def all_findings(s, blocks, ablation_done=False):

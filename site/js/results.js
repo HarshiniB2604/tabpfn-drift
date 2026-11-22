@@ -198,7 +198,7 @@
 
   /* ------------------------------------------------------------------ findings */
   function buildFindings() {
-    ["finding-cards", "robust-table", "sens-body"].forEach(function (id) { document.getElementById(id).textContent = ""; });
+    ["finding-cards", "robust-table", "sens-body", "winners"].forEach(function (id) { document.getElementById(id).textContent = ""; });
     document.getElementById("findings-note").textContent =
       "Each finding is computed from the saved results when the site is built; its wording depends on the numbers, " +
       "so a claim only appears if the data supports it.";
@@ -213,6 +213,15 @@
       li.appendChild(ev);
       list.appendChild(li);
     });
+
+    // which TabPFN policy has the lowest error on each synthetic drift stream (computed in make_site.py)
+    var W = R.synthetic_winners, win = document.getElementById("winners");
+    if (W) {
+      win.appendChild(el("h3", { text: "Lowest error on each synthetic drift stream" }));
+      win.appendChild(el("p", { text: W.text }));
+      win.appendChild(el("p", { class: "meta" }, replay(), "Among the TabPFN policies; baselines are in the results table."));
+      win.hidden = false;
+    }
 
     // robustness: % gap to the best TabPFN policy on each real dataset
     var sets = Object.keys(R.robustness);
@@ -232,6 +241,7 @@
       });
       body.appendChild(tr);
     });
+    document.getElementById("robust-takeaway").textContent = R.robustness_takeaway || "";
     document.getElementById("robust-table").appendChild(el("table", { class: "results" },
       el("caption", { class: "visually-hidden", text: "Gap to the best TabPFN policy per real dataset" }), el("thead", null, head), body));
 

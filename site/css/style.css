@@ -323,6 +323,10 @@ td.best { font-weight: 700; color: var(--ink); }
 .finding p, .limit p { max-width: 95ch; font-size: 0.98rem; }
 .caveat { color: var(--ink-2); }
 .caveat b { color: var(--ink); }
+.winners { margin-top: 16px; }
+.winners h3 { font-size: 1.1rem; margin-bottom: 6px; }
+.winners p { max-width: 95ch; font-size: 0.98rem; }
+.takeaway { margin: 14px 0 0; font-weight: 600; max-width: 95ch; }
 .sens-summary { font-weight: 600; color: var(--ink); max-width: 95ch; font-size: 1.02rem; }
 .sens-card .table-scroll { max-height: none; margin-bottom: 14px; }   /* show every row */
 .sens-card p { font-size: 0.95rem; max-width: 95ch; }
@@ -335,7 +339,24 @@ td.best { font-weight: 700; color: var(--ink); }
 .limit h3::before { content: counter(lim) ". "; color: var(--ink-2); }
 .limit p { color: var(--ink-2); margin: 0; }
 
+
+/* ---------------------------------------------------------------- footer */
+.site-footer { margin-top: var(--section-gap); border-top: 1px solid var(--line); padding: 28px 0 36px; }
+.footer-inner { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; }
+.footer-title { font: 600 1.05rem/1.3 var(--serif); margin: 0; }
+.footer-meta { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; font-size: 0.88rem; color: var(--ink-2); }
+#footer-built { display: block; max-width: 62ch; margin-left: auto; text-align: right; font-size: 0.8rem; }
+@media (max-width: 700px) { #footer-built { margin-left: 0; text-align: left; } }
+section:last-of-type { padding-bottom: 0; }
+
 /* ---------------------------------------------------------------- responsive */
+@media (max-width: 1180px) {
+  /* tablets and phones: brand + theme button on the first row, all section links on a second row */
+  html { scroll-padding-top: 104px; }
+  .topnav .wrap { gap: 4px 12px; flex-wrap: wrap; height: auto; padding-top: 8px; padding-bottom: 6px; }
+  .theme-toggle { margin-left: auto; }
+  .navlinks { order: 3; width: 100%; margin: 0 -12px; padding: 0 0 2px; }
+}
 @media (max-width: 1100px) {
   .hero-grid, .problem-grid { grid-template-columns: minmax(0, 1fr); }
   .policy-grid, .baseline-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -352,6 +373,10 @@ td.best { font-weight: 700; color: var(--ink); }
      in view while the numbers scroll sideways inside the table box */
   .col-kind { display: none; }
   .scroll-hint { display: block; }
+  /* phones: the section links wrap onto a second line instead of scrolling out of view */
+  html { scroll-padding-top: 132px; }
+  .navlinks { flex-wrap: wrap; row-gap: 2px; }
+  .navlinks a { padding: 5px 9px; font-size: 0.88rem; }
   table.results tr > :first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; }
   table.results { font-size: 0.8rem !important; }
   table.results th, table.results td { padding: 6px 6px; }
@@ -359,11 +384,6 @@ td.best { font-weight: 700; color: var(--ink); }
   .results-grid .card.pad { padding: 18px 14px; }
   .step:not(:last-child)::after { content: "\2193"; right: auto; left: 24px; top: auto; bottom: -15px; transform: none; }
   body { font-size: 17px; }
-  /* phones: brand + theme button on the first row, all section links on a second row */
-  html { scroll-padding-top: 104px; }
-  .topnav .wrap { gap: 4px 12px; flex-wrap: wrap; height: auto; padding-top: 8px; padding-bottom: 6px; }
-  .theme-toggle { margin-left: auto; }
-  .navlinks { order: 3; width: 100%; margin: 0 -12px; padding: 0 0 2px; }
 
   .brand { font-size: 0.95rem; }
   .theme-toggle .label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -375,8 +395,30 @@ td.best { font-weight: 700; color: var(--ink); }
 
 /* ---------------------------------------------------------------- print */
 @media print {
-  :root { --bg: #fff; --surface: #fff; --ink: #000; --ink-2: #333; --line: #bbb; }
-  .topnav, .actions, .scrubber input, .skip-link { display: none !important; }
-  section { padding-top: 24px; break-inside: avoid; }
-  .card { border-color: #999; }
+  /* Clean black-on-white. theme.js also switches the charts to the light colours while printing. */
+  :root, :root[data-theme="dark"] {
+    --bg: #fff; --surface: #fff; --ink: #000; --ink-2: #333; --line: #bbb; --line-strong: #888; --mark-muted: #777;
+    color-scheme: light;
+  }
+  @page { margin: 14mm 12mm; }
+  body { font-size: 10.5pt; background: #fff; color: #000; }
+  .topnav, .skip-link, .actions, .scrubber, .switcher, .chips, .flag-toggle, .tooltip, .scroll-hint,
+  details.data-table, .theme-toggle, noscript { display: none !important; }
+  section { padding: 14pt 0 0 !important; }
+  .hero { padding-top: 0 !important; }
+  h2 { font-size: 17pt; break-after: avoid; }
+  h3, h4 { break-after: avoid; }
+  .card { border: 1px solid #999 !important; box-shadow: none; break-inside: avoid; }
+  .chart-card, .results-grid .card, .finding, .limit, .policy, .data-item { break-inside: avoid; }
+  .table-scroll { overflow: visible !important; max-height: none !important; border-color: #999; }
+  table { font-size: 8.5pt; width: 100%; }
+  th, td { white-space: normal !important; padding: 3px 5px !important; }
+  .flag-capped, .method-cell { white-space: normal !important; }
+  thead th { position: static; }
+  table.results tr > :first-child { position: static; }
+  .col-kind { display: table-cell !important; }
+  .replay { border-color: #000; }
+  a { color: #000; }
+  a[href^="http"]::after { content: ""; }
+  .site-footer { border-top: 1px solid #999; }
 }

@@ -504,9 +504,8 @@ def finding_validation(s):
         diffs = "; ".join(f"{ds} {fmt(v.rmse_mean, v.rmse_ci95, v.n_seeds)} vs "
                           f"{fmt(p.rmse_mean, p.rmse_ci95, p.n_seeds)} ({pct(v.rmse_mean, p.rmse_mean):+.1f}%, "
                           f"{compare(v, p)})" for ds, v, p in real)
-        text += (f"  \nOn real data, P4 vs vanilla mean RMSE: {diffs}. *Low-drift cases are not shown "
-                 "by our data: real drift points are unknown, so we cannot say which real dataset has "
-                 "little drift.*  \n"
+        text += (f"  \nOn real data, P4 vs vanilla mean RMSE: {diffs}. *The true drift points in the real data are unknown, so we cannot "
+                 "tell whether a real dataset has drift at all, or how much.*  \n"
                  + evidence([r for _, v, p in real for r in (v, p)], "Real data"))
     return text
 

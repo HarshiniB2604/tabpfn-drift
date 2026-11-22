@@ -270,6 +270,8 @@ def main():
         limitations=limitations(summ, rj["meta"]["seeds"], problem_data(curves_in, summ), ab, blocks),
         findings=F.all_findings(summ, blocks, ablation_done=sensitivity is not None),
         robustness=F.robustness(summ),
+        robustness_takeaway=F.robustness_takeaway(F.robustness(summ)),
+        synthetic_winners=F.synthetic_winners(summ),
         ablation=ablation,
         adwin_sensitivity=sensitivity,
         adwin_limitation=F.adwin_limitation(summ, ab),

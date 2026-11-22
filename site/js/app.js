@@ -231,6 +231,9 @@
     sync();
   }
 
+  document.getElementById("footer-built").textContent =
+    "Page data built on " + R.generated + " from " + R.sources.summary_csv + " and " + R.sources.results_json +
+    (R.sources.ablation_csv ? " and " + R.sources.ablation_csv : "") + ".";
   buildThemeToggle();
   buildHero();
   driftIllustration();
