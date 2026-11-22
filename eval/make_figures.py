@@ -6,6 +6,8 @@ Saves to results/figures/:
 - rmse_{stream}.png        mean RMSE per method (sudden, gradual, recurring, none)
 - recovery_{stream}.png    recovery time per method (sudden, gradual, recurring)
 - regret_none.png          no-drift regret per method (% vs P0 vanilla)
+- rmse_{bike,pm25,energy}.png  mean RMSE per method on the real datasets (if present).
+  Real data has no known drift point, so there is no recovery chart for it.
 
 Error bars = 95% CI across seeds (rough with 3 seeds).
 Blue = TabPFN context policy, orange = baseline model.
@@ -32,6 +34,11 @@ LABEL = {"P0_vanilla": "P0 vanilla", "P1_window": "P1 sliding window",
          "kNN_context": "kNN context", "XGBoost": "XGBoost", "MLP": "MLP",
          "AdaptiveForest": "Adaptive forest"}
 NOTE = "Synthetic Friedman-1 streams, {n} seeds. Error bars: 95% CI across seeds (rough with few seeds)."
+REAL_NOTE = ("Real dataset, {n} seeds (same data; the seed changes model randomness). "
+             "Error bars: 95% CI across seeds. No known drift point.")
+REAL = {"bike": ("Bike Sharing", "bikes per hour"),
+        "pm25": ("Beijing PM2.5", "PM2.5 in ug/m3"),
+        "energy": ("Appliances Energy", "Wh per 10 min")}
 
 plt.rcParams.update({
     "figure.facecolor": SURFACE, "axes.facecolor": SURFACE, "savefig.facecolor": SURFACE,
@@ -79,9 +86,9 @@ def legend(fig, extra=None):
                frameon=False, fontsize=9)
 
 
-def finish(fig, title, n, path):
+def finish(fig, title, n, path, note=NOTE):
     fig.suptitle(title, x=0.02, ha="left", fontsize=13, fontweight="bold", color=INK)
-    fig.text(0.02, 0.015, NOTE.format(n=n), fontsize=8.5, color=INK2)
+    fig.text(0.02, 0.015, note.format(n=n), fontsize=8.5, color=INK2)
     fig.tight_layout(rect=(0, 0.04, 1, 0.88))
     fig.savefig(path, dpi=150)
     plt.close(fig)
@@ -96,6 +103,19 @@ def rmse_chart(s, stream, n, out):
         ax.set_xlim(0, None)
     legend(fig)
     finish(fig, f"Mean RMSE per method - {stream} stream", n, out / f"rmse_{stream}.png")
+
+
+def real_rmse_chart(s, stream, out):
+    d = s[s.stream == stream]
+    name, units = REAL[stream]
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+    hbars(ax, d, "rmse_mean", "rmse_ci95")
+    base_axes(ax, f"mean block RMSE, {units} (lower is better)")
+    ax.set_xlim(0, None)
+    legend(fig)
+    missing = "" if (d.kind == "TabPFN policy").any() else ", baselines only so far"
+    finish(fig, f"Mean RMSE - {name} (real data){missing}", int(d.n_seeds.max()),
+           out / f"rmse_{stream}.png", note=REAL_NOTE)
 
 
 def recovery_chart(s, stream, n, out):
@@ -156,6 +176,9 @@ def main():
     for stream in ("sudden", "gradual", "recurring"):
         recovery_chart(s, stream, n, out)
     regret_chart(s, n, out)
+    for stream in REAL:
+        if (s.stream == stream).any():
+            real_rmse_chart(s, stream, out)
 
 
 if __name__ == "__main__":

@@ -131,7 +131,8 @@ def main():
     report = {
         "meta": {
             "source": a.results,
-            "data": "synthetic Friedman-1 drift streams (not real-world data)",
+            "data": "synthetic Friedman-1 drift streams (sudden/gradual/recurring/none) and, if present, "
+                    "real datasets (bike/pm25/energy) with no known drift point",
             "seeds": sorted(int(s) for s in res.seed.unique()),
             "ci": "95% t-interval across seeds; with 3 seeds it is rough, not a confidence claim",
             "recovery_note": "capped at blocks-until-next-drift when not recovered; see recovered_events",
